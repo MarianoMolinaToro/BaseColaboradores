@@ -14,6 +14,7 @@
   
   display: flex;
   padding-left: 50px;
+  padding-right: 50px;
 }
 
 .container-form {
@@ -42,4 +43,6 @@ div.container-lista {
   div.container-lista {
     width: 500px;
   }
+  
+  
 }
