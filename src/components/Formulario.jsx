@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
-const Formulario = ({ data, setData, setDataFilter, setError}) => {
+const Formulario = ({ setError, isEditing,colaboradorEditado, editarColaborador, agregarColaborador }) => {
+ 
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
@@ -15,7 +17,7 @@ const Formulario = ({ data, setData, setDataFilter, setError}) => {
     e.preventDefault();
     const { nombre, correo, edad, cargo, telefono } = formData;
     const validarDatos =
-      !nombre || !correo || !edad || !cargo || !telefono;
+    !nombre || !correo || !edad || !cargo || !telefono;
     const validarCorreo = !/\S+@\S+\.\S+/.test(correo);
     const validarEdad = isNaN(Number(edad)); 
     const validarTelefono = isNaN(Number(telefono)); 
@@ -46,7 +48,7 @@ const Formulario = ({ data, setData, setDataFilter, setError}) => {
       });
     } else {
       const nuevoColaborador = {
-        id: data.length + 1,
+        id: new Date().getTime(),
         nombre,
         correo,  
         edad,
@@ -54,28 +56,42 @@ const Formulario = ({ data, setData, setDataFilter, setError}) => {
         telefono,
       };
 
-      setData((setData) => [...setData, nuevoColaborador]);
-      setDataFilter((setDataFilter) => [...setDataFilter, nuevoColaborador]);  
-
-      setError({
-        error: true,
-        msg: 'Colaborador agregado!',
-        color: 'success',
-      });
-
-      setFormData({
-        nombre: '',
-        correo: '',
-        edad: '',
-        cargo: '',
-        telefono: '',
-      });
+      if (isEditing) { 
+        editarColaborador(colaboradorEditado.id, nuevoColaborador);
+        resetFormData()
+        return;
+      }
+      agregarColaborador(nuevoColaborador);
+      resetFormData()
     }
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
+  useEffect(() => {
+    if (isEditing) {
+      setError({
+        error: false,
+        msg: '',
+        color: '',
+      })
+       setFormData(colaboradorEditado)
+    } else { 
+       resetFormData();
+    }
+  }, [isEditing, colaboradorEditado, setError]);
+
+  const resetFormData = () => { 
+    setFormData({
+      nombre: '',
+      correo: '',
+      edad: '',
+      cargo: '',
+      telefono: '',
+    });
+  }
 
   return (
     <div>
@@ -137,7 +153,7 @@ const Formulario = ({ data, setData, setDataFilter, setError}) => {
         </Form.Group>
 
         <Button type="submit" variant="success" className="w-100 mb-2">
-          Agregar colaborador
+          {isEditing ? 'Editar colaborador' : 'Agregar colaborador'}
         </Button>
       </Form>
     
